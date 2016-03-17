@@ -1,53 +1,113 @@
 ﻿//Koodannut ja testannut toimivaksi 6.3.2014 EsaSalmik
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using JAMK.ICT.Data;
+using System;
+using System.Data;
 
 namespace JAMK.ICT.ADOBlanco
 {
-  /// <summary>
-  /// Interaction logic for MainWindow.xaml
-  /// </summary>
-  public partial class MainWindow : Window
-  {
-    public MainWindow()
+    public partial class MainWindow : Window
     {
-      InitializeComponent();
-      IniMyStuff();
-    }
+        private string ConnStr;
+        private string TableName;
+        private DataTable dtData;
 
-    private void IniMyStuff()
-    {
-      //TODO täytetään combobox asiakkaitten maitten nimillä
-      //esimerkki kuinka App.Configissa oleva connectionstring luetaan
-      lbMessages.Content = JAMK.ICT.Properties.Settings.Default.Tietokanta;
-    }
 
-    private void btnGet3_Click(object sender, RoutedEventArgs e)
-    {
-      //TODO
-    }
 
-    private void btnGetAll_Click(object sender, RoutedEventArgs e)
-    {
-      //TODO
-    }
+        public MainWindow()
+        {
+            InitializeComponent();
+            IniMyStuff();
+        }
 
-    private void btnGetFrom_Click(object sender, RoutedEventArgs e)
-    {
-      //TODO
-    }
+
+
+        private void IniMyStuff()
+        {
+            this.ConnStr = Properties.Settings.Default.Tietokanta;
+            this.TableName = Properties.Settings.Default.Taulu;
+
+            this.getData();
+            this.FillMyCombo();
+        }
+
+
+
+        private void getData()
+        {
+            string message = "";
+            try
+            {
+                this.dtData = DBPlacebo.GetAllCustomersFromSQLServer(
+                    this.ConnStr, this.TableName, out message
+                    );
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+            }
+            finally
+            {
+                this.lbMessages.Content = message;
+            }
+        }
+
+
+
+        private void FillMyCombo()
+        {
+            string message = "";
+            try
+            {
+                cbCountries.ItemsSource = this.dtData.DefaultView;
+                cbCountries.DisplayMemberPath = "City";
+                cbCountries.SelectedValuePath = "City";
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+            }
+            finally
+            {
+                this.lbMessages.Content = message;
+            }
+        }
+        
+        
+
+        private void btnGet3_Click(object sender, RoutedEventArgs e)
+        {
+            this.dgCustomers.ItemsSource = DBPlacebo.GetTestCustomers().DefaultView;
+        }
+
+        
+
+        private void btnGetAll_Click(object sender, RoutedEventArgs e)
+        {
+            string message = "";
+            try
+            {
+                this.dgCustomers.ItemsSource = this.dtData.DefaultView;
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+            }
+            finally
+            {
+                this.lbMessages.Content = message;
+            }
+
+        }
+
+        
+
+        private void btnGetFrom_Click(object sender, RoutedEventArgs e)
+        {
+            //TODO
+        }
+        
+
 
         private void btnYield_Click(object sender, RoutedEventArgs e)
         {
